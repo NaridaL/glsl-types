@@ -1,0 +1,51 @@
+{
+  "name": "glsl-types",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -r ts-node/register test/*.test.ts",
+    "test:watch": "mocha -r ts-node/register -w --watch-extensions ts -R min test/*.test.ts",
+    "pegjs": "pegjs --format commonjs src/glsles1.0.pegjs",
+    "jison": "(cd src  && jison glsles.bison)",
+    "jison-lex": "(cd src && jison-lex glsles.jisonlex -o glsles.lexer.js -t commonjs)",
+    "build": "tsc",
+    "nearleyc": "nearleyc -o src/glslNearleyRules.ts src/glsl.ne",
+    "nearleyc:watch": "nodemon -w src/glsl.ne ./node_modules/nearley/bin/nearleyc.js -o src/glslNearleyRules.ts src/glsl.ne",
+    "nearley-test": "ts-node node_modules/nearley/bin/nearley-test.js src/glslesNearleyRules.ts -o debug.txt "
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/moo": "^0.4.0",
+    "@types/nearley": "^2.11.0",
+    "@types/pegjs": "^0.10.0",
+    "chalk": "^2.3.1",
+    "chokidar": "^2.0.2",
+    "commander": "^2.14.1",
+    "dateformat": "^3.0.3",
+    "jison": "^0.4.18",
+    "jison-lex": "^0.3.4"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/chalk": "^2.2.0",
+    "@types/chokidar": "^1.7.4",
+    "@types/commander": "^2.12.2",
+    "@types/dateformat": "^1.0.1",
+    "@types/glob": "^5.0.35",
+    "@types/mocha": "^2.2.48",
+    "chai": "^4.1.2",
+    "glob": "^7.1.2",
+    "mocha": "^5.0.1",
+    "moo": "^0.4.3",
+    "nearley": "^2.11.1",
+    "node-supervisor": "^1.0.2",
+    "nodemon": "^1.12.4",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.8.0-dev.20180217"
+  },
+  "bin": {
+    "glsl-types": "src/cli.js"
+  }
+}

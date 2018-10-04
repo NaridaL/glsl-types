@@ -1,0 +1,3 @@
+GLSL Lint									uses reference compiler -> not AST aware, only shows errors
+VS code SPIR-V (glsl/hlsl) shaders tools
+glslx-vscode								only GLSL ES 1.0, written in custom language -> not maintainable
