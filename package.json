@@ -1,8 +1,11 @@
 {
   "name": "glsl-types",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Generate typings for GLSL shaders.",
+  "main": "lib/main.js",
+  "bin": {
+    "glsl-types": "lib/cli.js"
+  },
   "scripts": {
     "test": "mocha -r ts-node/register test/*.test.ts",
     "test:watch": "mocha -r ts-node/register -w --watch-extensions ts -R min test/*.test.ts",
@@ -12,7 +15,8 @@
     "build": "tsc",
     "nearleyc": "nearleyc -o src/glslNearleyRules.ts src/glsl.ne",
     "nearleyc:watch": "nodemon -w src/glsl.ne ./node_modules/nearley/bin/nearleyc.js -o src/glslNearleyRules.ts src/glsl.ne",
-    "nearley-test": "ts-node node_modules/nearley/bin/nearley-test.js src/glslesNearleyRules.ts -o debug.txt "
+    "nearley-test": "ts-node node_modules/nearley/bin/nearley-test.js src/glslesNearleyRules.ts -o debug.txt ",
+    "prettier": "prettier --list-different --write ."
   },
   "author": "",
   "license": "ISC",
@@ -42,10 +46,12 @@
     "nearley": "^2.11.1",
     "node-supervisor": "^1.0.2",
     "nodemon": "^1.12.4",
+    "prettier": "^2.2.1",
     "ts-node": "^4.1.0",
     "typescript": "^2.8.0-dev.20180217"
   },
-  "bin": {
-    "glsl-types": "src/cli.js"
+  "prettier": {
+    "semi": false,
+    "trailingComma": "all"
   }
 }

@@ -1,4 +1,3 @@
-
 assignment_expression
 	= conditional_expression
 	/ unary_expression assignment_operator assignment_expression

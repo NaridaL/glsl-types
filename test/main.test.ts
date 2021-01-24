@@ -1,67 +1,71 @@
-import { getTypings, NameTypeMap, getTypeScriptDTS, Result } from '../src/main'
-import { assert } from 'chai'
-import * as fs from 'fs'
+import { getTypings, NameTypeMap, getTypeScriptDTS, Result } from "../src/main"
+import { assert } from "chai"
+import * as fs from "fs"
 
-function test(shader: string, result: Partial<Result>, type?: 'fragment' | 'vertex') {
-	const globals = getTypings(shader)
-	type && assert.equal(globals.type, type)
-	assert.deepEqual(globals.in_, result.in_ || {}, 'in_')
-	assert.deepEqual(globals.out, result.out || {}, 'out')
-	assert.deepEqual(globals.uniform, result.uniform || {}, 'uniform')
-	// console.log(getTypeScriptDTS(globals))
+function test(
+  shader: string,
+  result: Partial<Result>,
+  type?: "fragment" | "vertex",
+) {
+  const globals = getTypings(shader)
+  type && assert.equal(globals.type, type)
+  assert.deepEqual(globals.in_, result.in_ || {}, "in_")
+  assert.deepEqual(globals.out, result.out || {}, "out")
+  assert.deepEqual(globals.uniform, result.uniform || {}, "uniform")
+  // console.log(getTypeScriptDTS(globals))
 }
 
 describe("parsing uniforms", () => {
-	it("should work with a basic type", () => {
-		const shader = "uniform vec4 u, v;"
-		test(shader, { uniform: { 'u': 'vec4', 'v': 'vec4' } })
-	})
-	it("should work with an array of basic type", () => {
-		const shader = "uniform vec4 u[2];"
-		test(shader, { uniform: { 'u[0]': 'vec4' } })
-	})
-	it("should work with an array of basic type with initializer list", () => {
-		const shader = "uniform vec4 u[] = vec4[](vec4(0.0), vec4(2.0));"
-		test(shader, { uniform: { 'u[0]': 'vec4' } })
-	})
-	it("should work with a struct type", () => {
-		const shader = "struct S { float foo; vec4 bar[2]; }; uniform S u;"
-		test(shader, { uniform: { 'u.foo': 'float', 'u.bar[0]': 'vec4' } })
-	})
-	it("should work with an inline struct type", () => {
-		const shader = "uniform struct { float foo; vec4 bar[2]; } u;"
-		test(shader, { uniform: { 'u.foo': 'float', 'u.bar[0]': 'vec4' } })
-	})
-	it("should work with an array of structs", () => {
-		const shader = "uniform struct { float f; } u[2];"
-		test(shader, { uniform: { 'u[0].f': 'float', 'u[1].f': 'float' } })
-	})
-	it("should work with a uniform block without an instance", () => {
-		const shader = "uniform Block { float foo; };"
-		test(shader, { uniform: { 'foo': 'float' } })
-	})
-	it("should work with a uniform block with an instance", () => {
-		const shader = "uniform Block { float foo; } i;"
-		test(shader, { uniform: { 'Block.foo': 'float' } })
-	})
-	it("should work with a #define macro", () => {
-		const shader = "#define N 2\nuniform struct { float foo; } u[N];"
-		test(shader, { uniform: { 'u[0].foo': 'float', 'u[1].foo': 'float' } })
-	})
+  it("should work with a basic type", () => {
+    const shader = "uniform vec4 u, v;"
+    test(shader, { uniform: { u: "vec4", v: "vec4" } })
+  })
+  it("should work with an array of basic type", () => {
+    const shader = "uniform vec4 u[2];"
+    test(shader, { uniform: { "u[0]": "vec4" } })
+  })
+  it("should work with an array of basic type with initializer list", () => {
+    const shader = "uniform vec4 u[] = vec4[](vec4(0.0), vec4(2.0));"
+    test(shader, { uniform: { "u[0]": "vec4" } })
+  })
+  it("should work with a struct type", () => {
+    const shader = "struct S { float foo; vec4 bar[2]; }; uniform S u;"
+    test(shader, { uniform: { "u.foo": "float", "u.bar[0]": "vec4" } })
+  })
+  it("should work with an inline struct type", () => {
+    const shader = "uniform struct { float foo; vec4 bar[2]; } u;"
+    test(shader, { uniform: { "u.foo": "float", "u.bar[0]": "vec4" } })
+  })
+  it("should work with an array of structs", () => {
+    const shader = "uniform struct { float f; } u[2];"
+    test(shader, { uniform: { "u[0].f": "float", "u[1].f": "float" } })
+  })
+  it("should work with a uniform block without an instance", () => {
+    const shader = "uniform Block { float foo; };"
+    test(shader, { uniform: { foo: "float" } })
+  })
+  it("should work with a uniform block with an instance", () => {
+    const shader = "uniform Block { float foo; } i;"
+    test(shader, { uniform: { "Block.foo": "float" } })
+  })
+  it("should work with a #define macro", () => {
+    const shader = "#define N 2\nuniform struct { float foo; } u[N];"
+    test(shader, { uniform: { "u[0].foo": "float", "u[1].foo": "float" } })
+  })
 })
 describe("parser", () => {
-	it("should work with a function call initializer", () => {
-		const shader = "float a = foo();"
-		test(shader, {})
-	})
-	it("should work with #version", () => {
-		const shader = "#version 300 es\nfloat f;"
-		test(shader, {})
-	})
+  it("should work with a function call initializer", () => {
+    const shader = "float a = foo();"
+    test(shader, {})
+  })
+  it("should work with #version", () => {
+    const shader = "#version 300 es\nfloat f;"
+    test(shader, {})
+  })
 })
 describe("complex examples", () => {
-	it("should work with a fragment shader sampler2D uniforms and array uniforms and varying vec2", () => {
-		const shader = `
+  it("should work with a fragment shader sampler2D uniforms and array uniforms and varying vec2", () => {
+    const shader = `
 			precision mediump float;
 			const int NUM_PS = 3;
 			float q = 0.01;
@@ -86,49 +90,61 @@ describe("complex examples", () => {
 				// gl_FragColor = vec4(c, c, c, 1);
 			}
 		`
-		test(shader, {
-			uniform: {
-				texture: 'sampler2D',
-				texture2: 'sampler2D',
-				'ps[0]': 'vec4'
-			},
-			in_: {
-				coord: 'vec2',
-			}
-		}, 'fragment')
-	})
-	it("should work with a vertex shader with uniform mat4 and attribute vec4 ", () => {
-		const shader = `
+    test(
+      shader,
+      {
+        uniform: {
+          texture: "sampler2D",
+          texture2: "sampler2D",
+          "ps[0]": "vec4",
+        },
+        in_: {
+          coord: "vec2",
+        },
+      },
+      "fragment",
+    )
+  })
+  it("should work with a vertex shader with uniform mat4 and attribute vec4 ", () => {
+    const shader = `
 			precision mediump float;
 			uniform mat4 ts_ModelViewProjectionMatrix;
 			attribute vec4 ts_Vertex;
 			void main() {
 				gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
 			}`
-		test(shader, {
-			uniform: {
-				ts_ModelViewProjectionMatrix: 'mat4',
-			},
-			in_: {
-				ts_Vertex: 'vec4'
-			}
-		}, 'vertex')
-	})
-	it("should work with invariant varying", () => {
-		const shader = `
+    test(
+      shader,
+      {
+        uniform: {
+          ts_ModelViewProjectionMatrix: "mat4",
+        },
+        in_: {
+          ts_Vertex: "vec4",
+        },
+      },
+      "vertex",
+    )
+  })
+  it("should work with invariant varying", () => {
+    const shader = `
 			invariant varying vec4 color;
 			void main() {
 				gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
 			}`
-		test(shader, {
-			out: {
-				color: 'vec4'
-			}
-		}, 'vertex')
-	})
-	it("should work with layout declarations", () => {
-		// https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)
-		const shader = `
+    test(
+      shader,
+      {
+        out: {
+          color: "vec4",
+        },
+      },
+      "vertex",
+    )
+  })
+  it("should work with layout declarations", () => {
+    // https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)
+    const shader = `
 			layout(location = 2) in vec3 values[4];
 			layout(location = 0, index = 0) out vec4 outputColor0;
 			layout(location = 0, index = 1) out vec4 outputColor1;
@@ -170,41 +186,45 @@ describe("complex examples", () => {
 			layout(xfb_offset = 16) float val3;  // Compiler error. val2 covers bytes on the range [4, 20).
 			};
 		`
-		test(shader, {
-			in_: {
-				'values[0]': 'vec3',
-				'diffuseAlbedo': 'vec4',
-				'texCoord': 'vec2',
-				'cameraSpaceNormal': 'vec3',
-			},
-			out: {
-				"arr1[0]": "vec2",
-				"arr2[0]": "vec2",
-				"color": "vec4",
-				"fifth": "vec4",
-				"first": "vec2",
-				"fourth": "vec2",
-				"myOut.data1": "vec3",
-				"myOut.data2": "vec4",
-				"myOut.val[0]": "float",
-				"normal": "vec3",
-				"outputColor0": "vec4",
-				"outputColor1": "vec4",
-				"second[0]": "vec4",
-				"seventh": "vec3",
-				"sixth": "vec3",
-				"texCoord": "vec2",
-				"third": "vec4",
-				"val": "float",
-				"vals[0]": "vec3",
-				'val1': 'float',
-				'val2': 'vec4',
-				'val3': 'float',
-			}
-		}, 'fragment')
-	})
-	it("should work with a complex example", () => {
-		const shader = `
+    test(
+      shader,
+      {
+        in_: {
+          "values[0]": "vec3",
+          diffuseAlbedo: "vec4",
+          texCoord: "vec2",
+          cameraSpaceNormal: "vec3",
+        },
+        out: {
+          "arr1[0]": "vec2",
+          "arr2[0]": "vec2",
+          color: "vec4",
+          fifth: "vec4",
+          first: "vec2",
+          fourth: "vec2",
+          "myOut.data1": "vec3",
+          "myOut.data2": "vec4",
+          "myOut.val[0]": "float",
+          normal: "vec3",
+          outputColor0: "vec4",
+          outputColor1: "vec4",
+          "second[0]": "vec4",
+          seventh: "vec3",
+          sixth: "vec3",
+          texCoord: "vec2",
+          third: "vec4",
+          val: "float",
+          "vals[0]": "vec3",
+          val1: "float",
+          val2: "vec4",
+          val3: "float",
+        },
+      },
+      "fragment",
+    )
+  })
+  it("should work with a complex example", () => {
+    const shader = `
 		/**
 		* Example Fragment Shader
 		* Sets the color and alpha of the pixel by setting gl_FragColor
@@ -257,32 +277,36 @@ describe("complex examples", () => {
 			gl_FragColor = vec4( color * brightness, 1.0 );
 
 		}`
-		test(shader, {
-			in_: {
-				"vNormal": "vec3",
-				"vPosition": "vec3",
-				"vUv": "vec2",
-				"vUv2": "vec2",
-			},
-			uniform: {
-				"cameraPosition": "vec3",
-				"color": "vec3",
-				"lightPosition": "vec3",
-				"modelMatrix": "mat4",
-				"modelViewMatrix": "mat4",
-				"normalMatrix": "mat3",
-				"projectionMatrix": "mat4",
-				"time": "float",
-				"viewMatrix": "mat4",
-			},
-		}, 'fragment')
-	})
-	it("should work with geomechanical", () => {
-		const shader = fs.readFileSync(__dirname + '/geomechanical.glsl', 'utf8')
-		test(shader, {}, 'fragment')
-	})
-	it("should work with discard", () => {
-		const shader = "void main() {discard;}"
-		test(shader, {}, 'fragment')
-	})
+    test(
+      shader,
+      {
+        in_: {
+          vNormal: "vec3",
+          vPosition: "vec3",
+          vUv: "vec2",
+          vUv2: "vec2",
+        },
+        uniform: {
+          cameraPosition: "vec3",
+          color: "vec3",
+          lightPosition: "vec3",
+          modelMatrix: "mat4",
+          modelViewMatrix: "mat4",
+          normalMatrix: "mat3",
+          projectionMatrix: "mat4",
+          time: "float",
+          viewMatrix: "mat4",
+        },
+      },
+      "fragment",
+    )
+  })
+  it("should work with geomechanical", () => {
+    const shader = fs.readFileSync(__dirname + "/geomechanical.glsl", "utf8")
+    test(shader, {}, "fragment")
+  })
+  it("should work with discard", () => {
+    const shader = "void main() {discard;}"
+    test(shader, {}, "fragment")
+  })
 })
